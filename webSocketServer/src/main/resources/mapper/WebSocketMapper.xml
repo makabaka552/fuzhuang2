@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="webSocket.mapper.WebSocketMapper">
+    <resultMap id="ChatMessageMap" type="webSocket.pojo.ChatMessage">
+        <id property="id" column="id" />
+        <result property="fromUser" column="from_user" />
+        <result property="toUser" column="to_user"/>
+        <result property="content" column="content"/>
+        <result property="isSystem" column="is_system"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+    <insert id="saveMessage" parameterType="webSocket.pojo.ChatMessage">
+        INSERT INTO chat_message (from_user, to_user, content,is_system,create_time)
+        VALUES (#{userName},#{toName},#{tempMessage},#{isSystem},NOW());
+    </insert>
+
+    <select id="getHistoryMessage" resultMap="ChatMessageMap">
+        SELECT * FROM chat_message
+        WHERE from_user = #{userName} OR to_user = #{userName}
+        ORDER BY create_time ASC
+    </select>
+</mapper>

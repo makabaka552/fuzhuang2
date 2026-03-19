@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="favorites" />
+        <module name="webSocketServer" />
+        <module name="address" />
+        <module name="common" />
+        <module name="auth" />
+        <module name="review" />
+        <module name="payment" />
+        <module name="user" />
+        <module name="cart" />
+        <module name="gateway" />
+        <module name="products" />
+        <module name="order" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="18">
+      <module name="carts" target="1.8" />
+      <module name="getway" target="1.8" />
+      <module name="goods" target="1.8" />
+      <module name="ptu-dzy-202212900509" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="address" options="-parameters" />
+      <module name="auth" options="-parameters" />
+      <module name="cart" options="-parameters" />
+      <module name="carts" options="-parameters" />
+      <module name="common" options="-parameters" />
+      <module name="favorites" options="-parameters" />
+      <module name="gateway" options="-parameters" />
+      <module name="getway" options="-parameters" />
+      <module name="goods" options="-parameters" />
+      <module name="order" options="-parameters" />
+      <module name="payment" options="-parameters" />
+      <module name="products" options="-parameters" />
+      <module name="ptu-dzy-202212900509" options="" />
+      <module name="review" options="-parameters" />
+      <module name="user" options="-parameters" />
+      <module name="webSocketServer" options="-parameters" />
+    </option>
+  </component>
+</project>

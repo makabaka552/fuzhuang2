@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/address/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/auth/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/auth/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cart/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/carts/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/carts/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/favorites/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/gateway/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/getway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/goods/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/goods/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/payment/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/products/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/review/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/webSocketServer/src/main/java" charset="UTF-8" />
+  </component>
+</project>
