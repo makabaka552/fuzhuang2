@@ -21,6 +21,7 @@
         <module>review</module>
         <module>gateway</module>
         <module>webSocketServer</module>
+        <module>points</module>
     </modules>
 
     <properties>
@@ -55,6 +56,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>  <!-- 跳过 repackage -->
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

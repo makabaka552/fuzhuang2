@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -301,7 +302,78 @@ public class OrderServiceImpl implements OrderService {
         order.setPaymentTime(payTime);
 
         // 保存更新
-        return orderMapper.save(order);
+        Order savedOrder = orderMapper.save(order);
+
+        // 处理优惠券使用
+        if (order.getCouponId() != null) {
+            try {
+                useCoupon(order.getCouponId());
+                log.info("优惠券使用成功: couponId={}", order.getCouponId());
+            } catch (Exception e) {
+                log.error("优惠券使用失败: couponId={}, error={}", order.getCouponId(), e.getMessage());
+            }
+        }
+
+        // 支付成功后给用户添加积分（支付多少元获得多少积分）
+        try {
+            BigDecimal totalAmount = order.getTotalAmount();
+            if (totalAmount != null && totalAmount.compareTo(BigDecimal.ZERO) > 0) {
+                int points = totalAmount.intValue();
+                addPointsToUser(order.getUserId(), points);
+                log.info("用户获得积分: userId={}, points={}", order.getUserId(), points);
+            }
+        } catch (Exception e) {
+            log.error("添加积分失败: userId={}, error={}", order.getUserId(), e.getMessage());
+        }
+
+        return savedOrder;
+    }
+
+    private void useCoupon(Long couponId) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            Map<String, Long> requestBody = new HashMap<>();
+            requestBody.put("couponId", couponId);
+            
+            HttpEntity<Map<String, Long>> entity = new HttpEntity<>(requestBody, headers);
+            
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                    "http://localhost:8085/points/coupon/use",
+                    entity,
+                    Map.class);
+            
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                log.error("调用积分服务使用优惠券失败: couponId={}", couponId);
+            }
+        } catch (Exception e) {
+            log.error("调用积分服务使用优惠券异常: {}", e.getMessage());
+        }
+    }
+
+    private void addPointsToUser(Long userId, int points) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("userId", userId);
+            requestBody.put("points", points);
+            
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                    "http://localhost:8085/points/add",
+                    entity,
+                    Map.class);
+            
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                log.error("调用积分服务添加积分失败: userId={}, points={}", userId, points);
+            }
+        } catch (Exception e) {
+            log.error("调用积分服务添加积分异常: {}", e.getMessage());
+        }
     }
 
     @Override

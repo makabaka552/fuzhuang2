@@ -1,6 +1,5 @@
 package model;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
@@ -19,6 +18,7 @@ public class User {
     private String username;
     private String role = "USER";
     private String phone;
+    private Integer points = 0;  // 新增积分字段，默认值为0
 
 
     @JsonIgnore
@@ -58,8 +58,13 @@ public class User {
         this.phone = phone;
     }
 
+    public Integer getPoints() {
+        return points;
+    }
 
-
+    public void setPoints(Integer points) {
+        this.points = points;
+    }
 
     @Override
     public String toString() {
@@ -69,6 +74,7 @@ public class User {
                 ", uname='" + username + '\'' +
                 ", usex='" + role + '\'' +
                 ", phone='" + phone + '\'' +
+                ", points='" + points + '\'' +
                 '}';
     }
 

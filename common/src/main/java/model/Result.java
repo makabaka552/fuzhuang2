@@ -126,6 +126,16 @@ public class Result<T> implements Serializable {
         return result;
     }
 
+    public static <T> Result<T> success(String string, T data) {
+        Result<T> result = new Result<>();
+        result.setSuccess(true);
+        result.setCode(200);
+        result.setData(data);
+        result.setMessage(string);
+        return result;
+
+    }
+
     public Boolean getSuccess() {
         return success;
     }

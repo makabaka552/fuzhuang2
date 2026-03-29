@@ -50,12 +50,13 @@ public class AuthFilter implements GlobalFilter, Ordered {
             //解析token
             Map<String,Object> claims = JwtUtil.parseJWT(token);
             String userId = claims.get("id").toString();
+            String username = claims.get("username").toString();
             String uuid = claims.get("uuid").toString();
             //从redis获取对应token
             ValueOperations<String,String> operations = stringRedisTemplate.opsForValue();
-            String redisToken = operations.get(redisKeyUserName(userId));
+            String redisToken = operations.get(redisKeyUserName(username));
             if (redisToken == null){
-                redisToken = operations.get(redisKeyAdminName(userId));
+                redisToken = operations.get(redisKeyAdminName(username));
             }
             if(redisToken == null){
                 return unauthorizedResponse(exchange, HttpStatus.UNAUTHORIZED, "无效token");

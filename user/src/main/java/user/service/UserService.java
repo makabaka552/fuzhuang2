@@ -5,6 +5,8 @@ import model.User;
 public interface UserService {
     User FindUser(String username);
 
+    User findById(Long id);
+
     PageBeam GetUserList(Integer page, Integer pageSize);
 
     void createUser(User user);

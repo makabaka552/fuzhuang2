@@ -8,16 +8,17 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="favorites" />
-        <module name="webSocketServer" />
         <module name="address" />
-        <module name="common" />
         <module name="auth" />
+        <module name="cart" />
+        <module name="products" />
+        <module name="points" />
+        <module name="webSocketServer" />
+        <module name="common" />
         <module name="review" />
         <module name="payment" />
         <module name="user" />
-        <module name="cart" />
         <module name="gateway" />
-        <module name="products" />
         <module name="order" />
       </profile>
     </annotationProcessing>
@@ -41,6 +42,7 @@
       <module name="goods" options="-parameters" />
       <module name="order" options="-parameters" />
       <module name="payment" options="-parameters" />
+      <module name="points" options="-parameters" />
       <module name="products" options="-parameters" />
       <module name="ptu-dzy-202212900509" options="" />
       <module name="review" options="-parameters" />

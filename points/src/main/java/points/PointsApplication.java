@@ -1,11 +1,14 @@
-package webSocket;
+package points;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+
 @SpringBootApplication
-public class WebSocketServerApplicatiuon {
+@MapperScan("points.mapper")
+public class PointsApplication {
     public static void main(String[] args) {
-        SpringApplication.run(WebSocketServerApplicatiuon.class,args);
+        SpringApplication.run(PointsApplication.class,args);
     }
 }

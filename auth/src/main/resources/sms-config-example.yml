@@ -1,0 +1,27 @@
+# ===========================================
+# 阿里云短信服务配置示例
+# ===========================================
+# 请将以下配置添加到 Nacos 配置中心的 application-dev.yml 文件中
+
+aliyun:
+  sms:
+    # 是否启用短信服务（开发环境可设为false，使用模拟模式）
+    enabled: false
+    # 阿里云AccessKey ID（从阿里云控制台获取）
+    access-key-id: your-access-key-id
+    # 阿里云AccessKey Secret（从阿里云控制台获取）
+    access-key-secret: your-access-key-secret
+    # 短信签名名称（在阿里云短信控制台申请）
+    sign-name: 您的签名名称
+    # 短信模板CODE（在阿里云短信控制台申请）
+    template-code: SMS_XXXXXXXXX
+
+# ===========================================
+# 使用说明：
+# 1. 登录阿里云控制台 https://www.aliyun.com/
+# 2. 开通短信服务
+# 3. 申请短信签名和模板
+# 4. 创建AccessKey获取 access-key-id 和 access-key-secret
+# 5. 将配置填入上方对应位置
+# 6. 将 enabled 设为 true
+# ===========================================

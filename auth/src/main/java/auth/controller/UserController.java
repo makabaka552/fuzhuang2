@@ -1,6 +1,7 @@
 package auth.controller;
 
 import auth.service.CaptchaService;
+import auth.service.SmsService;
 import auth.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import model.Result;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +28,6 @@ import static utils.JwtUtil.generateJwt;
 
 @Slf4j
 @RestController
-// 接口前缀
 @RequestMapping("/auth")
 public class UserController {
     @Autowired
@@ -36,19 +37,16 @@ public class UserController {
     private CaptchaService captchaService;
 
     @Autowired
+    private SmsService smsService;
+
+    @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    /**
-     * 生成验证码图片
-     */
     @GetMapping("/captcha")
     public void captcha(HttpServletRequest request, HttpServletResponse response) throws IOException {
         captchaService.generateCaptchaImage(request, response);
     }
 
-    /**
-     * 验证验证码
-     */
     @PostMapping("/verify-captcha")
     public Result verifyCaptcha(@RequestBody Map<String, String> params, HttpServletRequest request) {
         String userCaptcha = params.get("captcha");
@@ -64,14 +62,26 @@ public class UserController {
         }
     }
 
-    // 注册
     @PostMapping("/register")
     public Result register(@RequestBody Map<String, String> registerParams, HttpServletRequest request) {
         String username = registerParams.get("username");
         String password = registerParams.get("password");
+        String phone = registerParams.get("phone");
         String captcha = registerParams.get("captcha");
 
-        // 验证码校验
+        if (username == null || username.isEmpty()) {
+            return Result.failure(ResultCodeEnum.FAIL, "用户名不能为空");
+        }
+        if (password == null || password.isEmpty()) {
+            return Result.failure(ResultCodeEnum.FAIL, "密码不能为空");
+        }
+        if (phone == null || phone.isEmpty()) {
+            return Result.failure(ResultCodeEnum.FAIL, "手机号不能为空");
+        }
+        if (!phone.matches("^1[3-9]\\d{9}$")) {
+            return Result.failure(ResultCodeEnum.FAIL, "手机号格式不正确");
+        }
+
         if (captcha != null && !captcha.isEmpty()) {
             boolean isValid = captchaService.validateCaptcha(request, captcha);
             if (!isValid) {
@@ -79,51 +89,96 @@ public class UserController {
             }
         }
 
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(password);
-
         User dbuser = userService.findByUsername(username);
         if (dbuser != null) {
             return Result.failure(ResultCodeEnum.FAIL, "用户名已存在！");
         }
+
+        User dbuserByPhone = userService.findByPhone(phone);
+        if (dbuserByPhone != null) {
+            return Result.failure(ResultCodeEnum.FAIL, "手机号已被注册！");
+        }
+
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setPhone(phone);
+        user.setRole("user");
+        user.setPoints(0);
+
         userService.register(user);
         return Result.success("注册成功");
     }
 
-    // 登录
     @PostMapping("/login")
     public Result login(@RequestBody Map<String, String> loginParams, HttpServletRequest request, HttpSession httpSession) {
         String username = loginParams.get("username");
         String password = loginParams.get("password");
         String captcha = loginParams.get("captcha");
+        String loginType = loginParams.get("loginType");
 
-        // 验证码校验
-        boolean isValid = captchaService.validateCaptcha(request, captcha);
-        if (!isValid) {
-            return Result.failure(ResultCodeEnum.FAIL, "验证码错误或已过期");
+        User e = null;
+        if ("phone".equals(loginType)) {
+            String smsCode = loginParams.get("verificationCode");
+            if (smsCode == null || smsCode.isEmpty()) {
+                return Result.failure(ResultCodeEnum.FAIL, "验证码不能为空");
+            }
+            String cachedCode = stringRedisTemplate.opsForValue().get("sms:" + username);
+            if (cachedCode == null || !cachedCode.equals(smsCode)) {
+                return Result.failure(ResultCodeEnum.FAIL, "短信验证码错误或已过期");
+            }
+            e = userService.findByPhone(username);
+            if (e == null) {
+                return Result.failure(ResultCodeEnum.FAIL, "该手机号未注册");
+            }
+        } else {
+            boolean isValid = captchaService.validateCaptcha(request, captcha);
+            if (!isValid) {
+                return Result.failure(ResultCodeEnum.FAIL, "验证码错误或已过期");
+            }
+            e = userService.login(username, password);
         }
-
-        User e = userService.login(username, password);
 
         if (e != null) {
             Map<String, Object> claims = new HashMap<>();
-            claims.put("id",e.getUsername());
+            claims.put("id", e.getId());
             claims.put("username", e.getUsername());
             String uuid = UUID.randomUUID().toString();
-            claims.put("uuid",uuid);
+            claims.put("uuid", uuid);
             String jwt = generateJwt(claims);
-            if(stringRedisTemplate.hasKey(redisKeyUserName(username)))
-            {
-                stringRedisTemplate.delete(redisKeyUserName(username));
+            if (stringRedisTemplate.hasKey(redisKeyUserName(e.getUsername()))) {
+                stringRedisTemplate.delete(redisKeyUserName(e.getUsername()));
             }
-            //新的token存放到redis
-            ValueOperations<String,String> operations = stringRedisTemplate.opsForValue();
-            operations.set(redisKeyUserName(username),jwt,1, TimeUnit.HOURS);
-            httpSession.setAttribute("currentUser", username);
+            ValueOperations<String, String> operations = stringRedisTemplate.opsForValue();
+            operations.set(redisKeyUserName(e.getUsername()), jwt, 1, TimeUnit.HOURS);
+            httpSession.setAttribute("currentUser", e.getUsername());
             return Result.success(jwt);
         } else {
             return Result.failure(ResultCodeEnum.FAIL, "用户名或密码错误");
+        }
+    }
+
+    @PostMapping("/send-code")
+    public Result sendVerificationCode(@RequestBody Map<String, String> params, HttpServletRequest request) {
+        String phone = params.get("phoneNumber");
+
+        if (phone == null || phone.isEmpty()) {
+            return Result.failure(ResultCodeEnum.FAIL, "手机号不能为空");
+        }
+        if (!phone.matches("^1[3-9]\\d{9}$")) {
+            return Result.failure(ResultCodeEnum.FAIL, "手机号格式不正确");
+        }
+
+        String code = String.format("%06d", new Random().nextInt(1000000));
+        stringRedisTemplate.opsForValue().set("sms:" + phone, code, 5, TimeUnit.MINUTES);
+
+        boolean sendResult = smsService.sendVerificationCode(phone, code);
+        if (sendResult) {
+            log.info("验证码发送成功，手机号: {}", phone);
+            return Result.success("验证码发送成功");
+        } else {
+            log.error("验证码发送失败，手机号: {}", phone);
+            return Result.failure(ResultCodeEnum.FAIL, "验证码发送失败，请稍后重试");
         }
     }
 
@@ -133,7 +188,6 @@ public class UserController {
         String password = loginParams.get("password");
         String captcha = loginParams.get("captcha");
 
-        // 验证码校验
         boolean isValid = captchaService.validateCaptcha(request, captcha);
         if (!isValid) {
             return Result.failure(ResultCodeEnum.FAIL, "验证码错误或已过期");
@@ -143,35 +197,35 @@ public class UserController {
 
         if (e != null) {
             Map<String, Object> claims = new HashMap<>();
-            claims.put("id",e.getUsername());
+            claims.put("id", e.getUsername());
             claims.put("username", e.getUsername());
             String uuid = UUID.randomUUID().toString();
-            claims.put("uuid",uuid);
+            claims.put("uuid", uuid);
             String jwt = generateJwt(claims);
-            if (stringRedisTemplate.hasKey(redisKeyAdminName(username))){
+            if (stringRedisTemplate.hasKey(redisKeyAdminName(username))) {
                 stringRedisTemplate.delete(redisKeyAdminName(username));
             }
-            ValueOperations<String,String> operations = stringRedisTemplate.opsForValue();
-            operations.set(redisKeyAdminName(username),jwt,1,TimeUnit.HOURS);
+            ValueOperations<String, String> operations = stringRedisTemplate.opsForValue();
+            operations.set(redisKeyAdminName(username), jwt, 1, TimeUnit.HOURS);
             return Result.success(jwt);
         } else {
             return Result.failure(ResultCodeEnum.FAIL, "用户名或密码错误");
         }
     }
 
-    // 退出登录
     @RequestMapping("/logout")
-    public Result logout(@RequestHeader(value = "uid") String userId) {
+    public Result logout(@RequestHeader(value = "uid", required = false) String userId) {
         if (userId != null) {
-            // stringRedisTemplate.delete(userId);
             return Result.success();
         }
         return Result.failure(ResultCodeEnum.FAIL, "未知用户");
     }
-    private String redisKeyUserName(String userName){
-        return "userName:"+userName;
+
+    private String redisKeyUserName(String userName) {
+        return "userName:" + userName;
     }
-    private String redisKeyAdminName(String userName){
-        return "adminName:"+userName;
+
+    private String redisKeyAdminName(String userName) {
+        return "adminName:" + userName;
     }
 }
