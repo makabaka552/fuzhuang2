@@ -11,7 +11,7 @@ public interface CouponMapper {
     @Select("SELECT * FROM coupon")
     List<Coupon> findAll();
 
-    @Select("SELECT * FROM coupon WHERE is_active = 1 and user_id = null")
+    @Select("SELECT * FROM coupon WHERE is_active = 1 and user_id is null")
     List<Coupon> findActiveCoupons();
 
     @Select("SELECT * FROM coupon WHERE id = #{id}")

@@ -340,7 +340,7 @@ public class OrderServiceImpl implements OrderService {
             HttpEntity<Map<String, Long>> entity = new HttpEntity<>(requestBody, headers);
             
             ResponseEntity<Map> response = restTemplate.postForEntity(
-                    "http://localhost:8085/points/coupon/use",
+                    "http://localhost:8091/points/coupon/use",
                     entity,
                     Map.class);
             
@@ -364,7 +364,7 @@ public class OrderServiceImpl implements OrderService {
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
             
             ResponseEntity<Map> response = restTemplate.postForEntity(
-                    "http://localhost:8085/points/add",
+                    "http://localhost:8091/points/add",
                     entity,
                     Map.class);
             

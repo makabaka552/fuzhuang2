@@ -108,11 +108,7 @@ public class AlipayNotifyService {
                     PaymentRecord savedRecord = paymentRecordService.save(newRecord);
                     logger.info("创建了新的支付记录: {}", savedRecord.getId());
 
-                    // 更新订单状态
-                    boolean updateResult = orderPaymentMappingService.updateOrderStatus(savedRecord);
-                    logger.info("新支付记录更新订单状态结果: {}", updateResult);
-
-                    // 通知其他系统
+                    // 通知其他系统（会处理订单状态更新、优惠券使用、积分添加）
                     paymentNotificationService.notifyPaymentResultByEvent(savedRecord);
                     boolean notifyResult = paymentNotificationService.notifyOrderSystem(savedRecord);
                     logger.info("新支付记录通知订单系统结果: {}", notifyResult);
@@ -134,11 +130,7 @@ public class AlipayNotifyService {
             PaymentRecord updatedRecord = paymentRecordService.save(record);
             logger.info("更新支付记录成功: {}", updatedRecord.getId());
 
-            // 更新订单状态
-            boolean updateResult = orderPaymentMappingService.updateOrderStatus(updatedRecord);
-            logger.info("订单状态更新结果: {}", updateResult);
-
-            // 通知其他系统支付成功
+            // 通知其他系统支付成功（会处理订单状态更新、优惠券使用、积分添加）
             paymentNotificationService.notifyPaymentResultByEvent(updatedRecord);
             boolean notifyResult = paymentNotificationService.notifyOrderSystem(updatedRecord);
             logger.info("订单系统通知结果: {}", notifyResult);

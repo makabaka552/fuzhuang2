@@ -107,7 +107,9 @@ public class PointsServiceImpl implements PointsService {
                 return false;
             }
             coupon.setStatus(1);
+            coupon.setIsActive(0);
             couponMapper.updateStatus(couponId, 1);
+            couponMapper.updateActiveStatus(couponId, 0);
             return true;
         } catch (Exception e) {
             return false;

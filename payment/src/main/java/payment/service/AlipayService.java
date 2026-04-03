@@ -75,7 +75,6 @@ public class AlipayService {
     public String createOrder(String orderNo, String subject, BigDecimal totalAmount, Long userId)
             throws AlipayApiException {
         // 1. 使用已初始化的AlipayClient
-
         // 2. 创建请求对象
         AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
         request.setReturnUrl(alipayConfig.getReturnUrl());

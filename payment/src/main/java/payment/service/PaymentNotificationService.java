@@ -54,7 +54,7 @@ public class PaymentNotificationService {
 
             // 构造URL参数
             StringBuilder urlBuilder = new StringBuilder(
-                    "http://localhost:8081/api/orders/payment/notify?");
+                    "http://localhost:8086/orders/payment/notify?");
             urlBuilder.append("orderNo=").append(encodedOrderNo);
             urlBuilder.append("&paymentMethod=").append(encodedMethod);
 
